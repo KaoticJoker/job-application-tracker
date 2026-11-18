@@ -2,8 +2,6 @@
 -- Compatible with the FINAL PROJECT schema.sql (not the older assignment schema).
 -- RUN ONCE against the EMPTY project tables. Does NOT DROP or DELETE anything.
 -- If you have existing rows, back up first and do not run this file unchanged.
--- Assignment 1 is setup; Assignments 4-6 emphasize transactions, Python and analytics,
--- rather than defining a single additional fixed final dataset.
 USE job_tracker;
 START TRANSACTION;
 
