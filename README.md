@@ -32,7 +32,14 @@ A local full-stack application for tracking companies, job postings, application
 ## Setup on Windows (Command Prompt)
 
 1. Install **Python 3** and **MySQL Server 8+**. MySQL Workbench is recommended.
-2. Clone the repository, or download its ZIP and extract it. Open CMD in the folder containing `app.py` and `requirements.txt`.
+2. Clone the repository using **Windows Command Prompt**:
+
+   ```cmd
+   git clone https://github.com/KaoticJoker/job-application-tracker.git
+   cd job-application-tracker
+   ```
+
+   Alternatively, download the GitHub ZIP and open CMD in the extracted folder containing `app.py` and `requirements.txt`.
 3. Install dependencies:
 
    ```cmd
@@ -40,7 +47,7 @@ A local full-stack application for tracking companies, job postings, application
    ```
 
 4. **Back up any existing `job_tracker` database before proceeding.** Open `schema.sql` in a connected MySQL Workbench session and execute the entire script. **It begins with `DROP DATABASE IF EXISTS job_tracker` and permanently deletes existing data.** If you already have a compatible populated database, skip this step.
-5. Optional: To reproduce the sample demonstration data, execute `seed_assignments_1_to_7.sql` **once**, after creating the empty tables. The seed script is provided separately from `schema.sql` and must be included in your local project folder if you want to use it.
+5. **Load the demonstration data (recommended for grading):** Verify that `seed_assignments_1_to_7.sql` is in the repository root alongside `schema.sql`. After running `schema.sql` on a fresh/empty project database, open `seed_assignments_1_to_7.sql` in MySQL Workbench, connect to the same MySQL server, and execute the entire script **once**. The seed inserts five companies, 17 jobs, five applications, and five contacts, and sets up JSON demonstration values. **Do not run it on an already populated database:** it uses fixed IDs and may fail with duplicate-key errors. If the seed file is missing from the clone, the repository is incomplete; obtain/commit it before testing.
 6. Copy `.env.example` to `.env` in the project folder. Edit `.env` with your own MySQL credentials and a new random Flask secret key:
 
    ```env
@@ -71,7 +78,7 @@ SELECT COUNT(*) FROM applications;
 SELECT COUNT(*) FROM contacts;
 ```
 
-When the optional sample data is loaded into an otherwise empty database, the initial counts should be **5 companies, 17 jobs, 5 applications, and 5 contacts**. These are demonstration counts, not required minimums.
+When the included sample data is loaded into an otherwise empty database, the initial counts should be **5 companies, 17 jobs, 5 applications, and 5 contacts**. These are demonstration counts, not required minimums.
 
 ## Job Match example
 
