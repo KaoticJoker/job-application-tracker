@@ -1,51 +1,137 @@
 # Job Application Tracker — COP4751 Course Project
 
-A full-stack Flask/MySQL application with four related tables, full CRUD, a dashboard, and a skill-based Job Match page.
+**Repository:** https://github.com/KaoticJoker/job-application-tracker  
+**Stack:** Python 3, Flask, MySQL 8+, HTML/CSS, Bootstrap, Git/GitHub
 
-## Requirements
-- Python 3.10+
-- MySQL 8+
-- Internet access for the optional Bootstrap CDN styling
-
-## Setup (Windows PowerShell)
-1. Clone/download the repository and open the `job_tracker_project` folder.
-2. Create a virtual environment: `py -m venv .venv`
-3. Activate it: `.venv\Scripts\Activate.ps1` (if PowerShell blocks activation, use `.venv\Scripts\python.exe` directly).
-4. Install dependencies: `pip install -r requirements.txt`
-5. In MySQL Workbench, open `schema.sql` and execute it, or run `mysql -u root -p < schema.sql` in a terminal with MySQL on PATH.
-6. Copy `.env.example` to `.env` and set your MySQL password and a random `FLASK_SECRET_KEY`.
-7. Start: `python app.py`
-8. Open `http://127.0.0.1:5000`.
-
-## Suggested demonstration sequence (3–7 minutes)
-1. Show the four MySQL tables and JSON columns in Workbench.
-2. Open dashboard; create a company and job, with `requirements` JSON such as `{"required_skills":["Python","SQL","Flask"]}`.
-3. Create an application and contact linked to the new records.
-4. View and edit each record, show dashboard stats.
-5. Open Job Match; enter `Python, SQL` and show 67% (2/3), missing Flask.
-6. Delete a contact and show confirmation; demonstrate safe foreign-key delete protection.
-7. Show repository, README and AI_USAGE.md.
+A local full-stack application for tracking companies, job postings, applications, and contacts. It includes a dashboard and a Job Match feature that ranks job postings against skills entered by a user.
 
 ## Features
-- Company, job, application and contact create/read/update/delete, with confirmation on deletes
-- Required-field, date, numeric and JSON validation
-- Parameterized SQL values and MySQL foreign keys
-- Dashboard counts, status distribution, recent applications
-- Job Match ranks jobs by matched / total required skills (case-insensitive)
-- `requirements` and `interview_data` JSON columns
 
-## Notes
-- This project uses the **course project specification schema**, which differs from some earlier assignment versions (e.g. `job_url` instead of `posting_url`, and `contact_name` instead of separate first/last names). Import into a fresh database or migrate your old schema carefully.
-- No example records are preloaded. Add them through the UI.
-- Run locally for the course demo; it has no user accounts or CSRF protection and is not production-ready.
-- Deleting a parent company/job with related records is blocked by foreign keys.
-- Never commit `.env` or passwords to GitHub.
+- **Companies, Jobs, Applications, Contacts:** Create, view, edit, and delete records through web forms and list/detail pages.
+- **Dashboard:** Live record totals, application-status breakdown, and recent applications.
+- **Job Match:** Enter comma-separated skills; results show match percentage, matched skills, and missing skills, sorted by match score.
+- **MySQL relationships:** Foreign keys connect jobs to companies, applications to jobs, and contacts to companies. Related parent records are protected against accidental deletion.
+- **JSON fields:** `jobs.requirements` stores job skill requirements; `applications.interview_data` stores flexible interview information.
+- **Validation:** Required fields, dates, salary bounds, and JSON syntax are validated by the Flask application.
 
-## Testing
-Run `python -m unittest discover -s tests -v` for standalone skill-match unit tests. Also manually verify each CRUD operation against a local MySQL server.
+## Project files
 
-## Submission checklist
-- [ ] Push this project to GitHub and share the repository URL
-- [ ] Record a 3–7 minute demonstration showing browser, Flask server, and MySQL
-- [ ] Test all CRUD pages and Job Match on your machine
-- [ ] Complete AI_USAGE.md with your own testing, changes, and lessons
+| File/folder | Purpose |
+| --- | --- |
+| `app.py` | Flask routes, CRUD logic, dashboard, skill-matching algorithm |
+| `database.py` | MySQL connection configured using environment variables |
+| `schema.sql` | **Destructive reset:** recreates the `job_tracker` database and four tables |
+| `seed_assignments_1_to_7.sql` | Optional sample records for an **empty** project database (include this file if using the seed data) |
+| `templates/` | HTML pages for dashboard, lists, details, forms, Job Match |
+| `static/` | CSS styling |
+| `tests/test_matching.py` | Skill-matching unit tests |
+| `requirements.txt` | Python dependencies |
+| `.env.example` | Placeholder environment configuration; **never put secrets here** |
+| `AI_USAGE.md` | GenAI assistance and student testing record |
+
+## Setup on Windows (Command Prompt)
+
+1. Install **Python 3** and **MySQL Server 8+**. MySQL Workbench is recommended.
+2. Clone the repository, or download its ZIP and extract it. Open CMD in the folder containing `app.py` and `requirements.txt`.
+3. Install dependencies:
+
+   ```cmd
+   python -m pip install -r requirements.txt
+   ```
+
+4. **Back up any existing `job_tracker` database before proceeding.** Open `schema.sql` in a connected MySQL Workbench session and execute the entire script. **It begins with `DROP DATABASE IF EXISTS job_tracker` and permanently deletes existing data.** If you already have a compatible populated database, skip this step.
+5. Optional: To reproduce the sample demonstration data, execute `seed_assignments_1_to_7.sql` **once**, after creating the empty tables. The seed script is provided separately from `schema.sql` and must be included in your local project folder if you want to use it.
+6. Copy `.env.example` to `.env` in the project folder. Edit `.env` with your own MySQL credentials and a new random Flask secret key:
+
+   ```env
+   DB_HOST=localhost
+   DB_USER=root
+   DB_PASSWORD=YOUR_MYSQL_PASSWORD
+   DB_NAME=job_tracker
+   FLASK_SECRET_KEY=REPLACE_WITH_A_RANDOM_SECRET
+   ```
+
+   Do not commit `.env` to GitHub. The included `.gitignore` should exclude it. Do not reuse the example values as real secrets.
+7. Start Flask:
+
+   ```cmd
+   python app.py
+   ```
+
+8. Visit **http://127.0.0.1:5000**. Keep the CMD window running while using the application; press `Ctrl+C` to stop it.
+
+### Optional: verify MySQL tables
+
+```sql
+USE job_tracker;
+SHOW TABLES;
+SELECT COUNT(*) FROM companies;
+SELECT COUNT(*) FROM jobs;
+SELECT COUNT(*) FROM applications;
+SELECT COUNT(*) FROM contacts;
+```
+
+When the optional sample data is loaded into an otherwise empty database, the initial counts should be **5 companies, 17 jobs, 5 applications, and 5 contacts**. These are demonstration counts, not required minimums.
+
+## Job Match example
+
+On **Job Match**, enter:
+
+```text
+Python, SQL, Git
+```
+
+With the provided sample data, the **Software Developer** role at **Tech Solutions Inc** returns **100%** (3 of 3 required skills). The **Data Analyst** role at **Data Analytics Corp** returns **33%** (1 of 3), with **Excel** and **Tableau** shown as missing.
+
+When adding a job, enter a JSON object—not plain `Python`—in the Requirements JSON field, for example:
+
+```json
+{"required_skills":["Python","SQL","Git"]}
+```
+
+The algorithm compares skills case-insensitively, calculates `matched required skills / total required skills × 100`, and skips jobs without a usable `required_skills` list.
+
+## Testing and observed results
+
+The project was tested locally on Windows with Flask connected to MySQL:
+
+| Test | Observed result |
+| --- | --- |
+| Flask startup and database connection | Dashboard loaded successfully |
+| Sample dashboard | 5 companies, 17 jobs, 5 applications, 5 contacts |
+| Company CRUD | Created, viewed, edited, deleted a temporary company; count returned to 5 |
+| Job CRUD | Created, viewed, edited, deleted a temporary job; count returned to 17 |
+| Application CRUD | Created with Applied status, updated to Interview, deleted; count returned to 5 |
+| Contact CRUD | User confirmed create/read/update/delete passed |
+| Job Match | 100% and 33% results with matched/missing skills displayed |
+| Unit tests | 2 tests passed (`OK`) |
+
+Run the automated tests from the project root:
+
+```cmd
+python -m unittest discover -s tests -v
+```
+
+The two unit tests check job ranking/missing skills and ignoring empty requirements. These tests are **not** a complete automated integration-test suite; CRUD and database connectivity were verified manually.
+
+## Troubleshooting
+
+- **`Access denied ... (using password: NO)`**: Check that `.env` exists (not `.env.example` or `.env.txt`), contains the actual MySQL password, and that `database.py` loads environment variables. Restart Flask after editing.
+- **Dashboard shows zeros**: The tables may be empty. Add records in the UI or optionally run the seed script once on empty tables.
+- **`Requirements JSON must be valid JSON`**: Use an object such as `{"required_skills":["Python","SQL"]}` rather than plain text.
+- **`py` not recognized**: Use `python` commands instead if Python is available through PATH.
+- **Delete blocked**: Foreign-key relationships may prevent deletion of a company/job with dependent records.
+
+## Limitations and security
+
+This is a local academic demonstration, **not** a production deployment. It does not provide user accounts or CSRF protection. Do not expose the Flask development server publicly. Keep `.env` private and use placeholder values in `.env.example`.
+
+The final project schema differs from earlier assignment schemas (for example `job_url` vs. `posting_url`, and `contact_name` vs. separate first/last names). Do not apply the reset script to earlier coursework data without a backup.
+
+## Course submission
+
+- **GitHub:** https://github.com/KaoticJoker/job-application-tracker
+- **Required source:** Flask code, templates, styling, `schema.sql`, `requirements.txt`, `README.md`, and `AI_USAGE.md`
+- **Video:** Record and submit a **3–7 minute** demonstration showing the browser/client, Flask server, and MySQL database. The video is a separate submission deliverable.
+
+Suggested demo: show the database and JSON fields; demonstrate dashboard statistics; perform representative CRUD operations; show Job Match results and missing skills; show the Flask CMD window; show the repository and documentation.
